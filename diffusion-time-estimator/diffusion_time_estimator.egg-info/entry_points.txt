@@ -1,0 +1,2 @@
+[console_scripts]
+diffusion-time = diffusion_time_estimator.__main__:main

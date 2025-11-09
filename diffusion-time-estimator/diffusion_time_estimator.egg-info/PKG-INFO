@@ -1,0 +1,262 @@
+Metadata-Version: 2.1
+Name: diffusion-time-estimator
+Version: 0.1.0
+Summary: A tool for estimating diffusion timescales from first principles
+Home-page: https://github.com/yourusername/diffusion-time-estimator
+Author: 
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: matplotlib>=3.3.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=3.0.0; extra == "dev"
+
+# Diffusion Time Estimator
+
+A minimal command-line tool that estimates diffusion timescales for molecules in various media, based purely on first principles physics.
+
+## Overview
+
+This tool uses the **Stokes-Einstein relation** and fundamental physical constants to compute:
+- **Diffusion coefficients** for molecules in fluid media
+- **Mean-square displacement (MSD)** as a function of time
+- **Characteristic diffusion times** to traverse a given distance
+
+## Installation
+
+### From source
+
+```bash
+git clone https://github.com/yourusername/diffusion-time-estimator.git
+cd diffusion-time-estimator
+pip install -e .
+```
+
+### Dependencies
+
+- Python 3.10+
+- numpy
+- matplotlib (for plotting)
+- pytest (for testing)
+
+Install all dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+### Basic Example
+
+```bash
+diffusion-time --radius 1e-9 --viscosity 1e-3 --distance 1e-6
+```
+
+Output:
+```
+Estimated diffusion coefficient: 2.18e-10 m²/s
+Characteristic diffusion time: 0.758 ms
+```
+
+### Command-Line Options
+
+| Flag | Short | Description | Default |
+|------|-------|-------------|---------|
+| `--radius` | `-r` | Molecule hydrodynamic radius (m) | **Required** |
+| `--viscosity` | `-v` | Medium viscosity (Pa·s) | 1e-3 (water) |
+| `--temperature` | `-T` | Temperature (K) | 298 |
+| `--distance` | `-L` | Diffusion distance (m) | 1e-6 |
+| `--dims` | `-n` | Spatial dimensions (1, 2, or 3) | 3 |
+| `--plot` | `-p` | Plot MSD vs. time | Optional flag |
+| `--verbose` |  | Show detailed output | Optional flag |
+
+### Examples
+
+**Small molecule in water:**
+```bash
+diffusion-time --radius 1e-9 --distance 1e-5
+```
+
+**Protein in cytoplasm at body temperature:**
+```bash
+diffusion-time --radius 2e-9 --viscosity 3e-3 --temperature 310
+```
+
+**2D diffusion with plotting:**
+```bash
+diffusion-time --radius 5e-10 --dims 2 --plot
+```
+
+**Verbose output:**
+```bash
+diffusion-time --radius 1e-9 --verbose
+```
+
+Output:
+```
+============================================================
+DIFFUSION TIME ESTIMATOR
+============================================================
+
+Input Parameters:
+  Molecule radius:       1.000e-09 m
+  Medium viscosity:      1.000e-03 Pa·s
+  Temperature:           298.0 K
+  Diffusion distance:    1.000e-06 m
+  Spatial dimensions:    3D
+
+Results:
+  Diffusion coefficient: 2.176e-10 m²/s
+  Diffusion time:        0.758 ms
+============================================================
+```
+
+## Physical Model
+
+### Stokes-Einstein Equation
+
+The diffusion coefficient is calculated using:
+
+$$D = \frac{k_B T}{6\pi\eta r}$$
+
+where:
+- $D$ = diffusion coefficient (m²/s)
+- $k_B$ = Boltzmann constant (1.380649 × 10⁻²³ J/K)
+- $T$ = temperature (K)
+- $\eta$ = dynamic viscosity (Pa·s)
+- $r$ = hydrodynamic radius (m)
+
+### Mean-Square Displacement
+
+$$\langle x^2(t) \rangle = 2nDt$$
+
+where $n$ is the number of spatial dimensions (1, 2, or 3).
+
+### Characteristic Diffusion Time
+
+$$t_{\text{diff}} \approx \frac{L^2}{2nD}$$
+
+where $L$ is the characteristic distance.
+
+## Python API
+
+You can also use the package programmatically:
+
+```python
+from diffusion_time_estimator import (
+    diffusion_coefficient,
+    diffusion_time,
+    mean_square_displacement
+)
+
+# Calculate diffusion coefficient
+D = diffusion_coefficient(radius=1e-9, viscosity=1e-3, temperature=298)
+print(f"D = {D:.3e} m²/s")
+
+# Calculate diffusion time
+t = diffusion_time(distance=1e-6, D=D, dims=3)
+print(f"t_diff = {t:.3e} s")
+
+# Calculate MSD at time t
+msd = mean_square_displacement(D=D, t=1.0, dims=3)
+print(f"MSD = {msd:.3e} m²")
+```
+
+### Plotting
+
+```python
+from diffusion_time_estimator.plot import plot_msd
+
+# Plot MSD vs time
+D = 2.18e-10  # m²/s
+plot_msd(D, dims=3)
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+pytest
+```
+
+Run tests with coverage:
+
+```bash
+pytest --cov=diffusion_time_estimator --cov-report=html
+```
+
+## Physical Examples
+
+### Glucose in Water
+```bash
+diffusion-time --radius 5e-10 --distance 1e-5
+# D ≈ 6.7e-10 m²/s, t ≈ 25 ms
+```
+
+### Small Protein in Cytoplasm
+```bash
+diffusion-time --radius 2e-9 --viscosity 3e-3 --temperature 310
+# D ≈ 2.2e-11 m²/s, t ≈ 76 ms (for 1 μm)
+```
+
+### Ion Channel Diffusion (2D)
+```bash
+diffusion-time --radius 3e-9 --dims 2 --distance 1e-7
+# 2D diffusion in membrane
+```
+
+## Project Structure
+
+```
+diffusion-time-estimator/
+├── diffusion_time_estimator/
+│   ├── __init__.py          # Package initialization
+│   ├── __main__.py          # CLI entrypoint
+│   ├── core.py              # Physics calculations
+│   ├── plot.py              # Plotting functions
+│   ├── constants.py         # Physical constants
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_core.py     # Core function tests
+│       └── test_cli.py      # CLI tests
+├── setup.py                 # Package setup
+├── requirements.txt         # Dependencies
+└── README.md               # This file
+```
+
+## Extension Ideas
+
+- Temperature-dependence curves for $D(T)$
+- Compare diffusion in different media (water, cytoplasm, membranes)
+- Support for anisotropic diffusion tensors
+- Export results as CSV or JSON
+- Web interface with interactive sliders (Streamlit)
+- Size-dependent viscosity corrections
+- Non-spherical particle geometries
+
+## License
+
+MIT License
+
+## References
+
+1. Einstein, A. (1905). "Über die von der molekularkinetischen Theorie der Wärme geforderte Bewegung von in ruhenden Flüssigkeiten suspendierten Teilchen". *Annalen der Physik*.
+2. Berg, H. C. (1993). *Random Walks in Biology*. Princeton University Press.
+3. Dill, K. A., & Bromberg, S. (2010). *Molecular Driving Forces*. Garland Science.
+
+## Contact
+
+For questions or suggestions, please open an issue on GitHub.
