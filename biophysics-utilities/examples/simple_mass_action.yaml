@@ -1,0 +1,24 @@
+# Simple Mass Action Kinetics Example
+
+species:
+  - A
+  - B
+  - C
+
+reactions:
+  - equation: A + B -> C
+    rate_constant: 0.1
+    kinetic_law: mass_action
+    
+  - equation: C -> A + B
+    rate_constant: 0.05
+    kinetic_law: mass_action
+
+initial_conditions:
+  A: 1.0
+  B: 1.0
+  C: 0.0
+
+simulation:
+  time_span: [0, 100]
+  method: LSODA

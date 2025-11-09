@@ -1,0 +1,257 @@
+Metadata-Version: 2.4
+Name: reaction-kinetics-playground
+Version: 0.1.0
+Summary: A modular computational framework for constructing and simulating chemical reaction networks
+Author-email: Murari <murari@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/murari/reaction-kinetics-playground
+Project-URL: Documentation, https://github.com/murari/reaction-kinetics-playground/docs
+Project-URL: Repository, https://github.com/murari/reaction-kinetics-playground
+Keywords: chemical kinetics,reaction networks,ODE simulation,systems biology,computational chemistry
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Bio-Informatics
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.21.0
+Requires-Dist: scipy>=1.7.0
+Requires-Dist: sympy>=1.9
+Requires-Dist: matplotlib>=3.4.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: pyyaml>=5.4.0
+Requires-Dist: click>=8.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=3.0.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+Requires-Dist: flake8>=4.0.0; extra == "dev"
+Requires-Dist: mypy>=0.950; extra == "dev"
+Provides-Extra: streamlit
+Requires-Dist: streamlit>=1.20.0; extra == "streamlit"
+Requires-Dist: plotly>=5.0.0; extra == "streamlit"
+Provides-Extra: performance
+Requires-Dist: cython>=0.29.0; extra == "performance"
+Requires-Dist: numba>=0.55.0; extra == "performance"
+Provides-Extra: export
+Requires-Dist: python-libsbml>=5.19.0; extra == "export"
+Provides-Extra: all
+Requires-Dist: reaction-kinetics-playground[dev,export,performance,streamlit]; extra == "all"
+Dynamic: license-file
+
+# Reaction Kinetics Playground
+
+A modular computational framework for constructing and simulating chemical reaction networks directly from text-based input, without requiring users to manually derive or code differential equations.
+
+## Features
+
+- **Text-based Reaction Input**: Parse reactions like `A + B -> C ; k1` automatically
+- **Symbolic Computation**: Built on SymPy for symbolic rate equation generation
+- **Mass Action Kinetics**: Default kinetic law with support for custom laws (Michaelis-Menten, Hill)
+- **Numerical Integration**: Adaptive ODE solving with SciPy's `solve_ivp` (RK45, LSODA, stiff solvers)
+- **Interactive Visualization**: Time-course plots, phase diagrams, parameter sweeps
+- **Modular Architecture**: Composable components for parsing, simulation, and visualization
+- **Export Capabilities**: LaTeX equations, SBML models
+- **CLI and Python API**: Use from command line or Python scripts
+
+## Installation
+
+```bash
+# Basic installation
+pip install -e .
+
+# With all optional dependencies
+pip install -e ".[all]"
+
+# Development installation
+pip install -e ".[dev]"
+```
+
+## Quick Start
+
+### Python API
+
+```python
+from kinetics_playground.api import ReactionNetwork
+
+# Define reactions
+reactions = [
+    "A + B -> C ; 0.1",
+    "C -> A + B ; 0.05"
+]
+
+# Create network and simulate
+network = ReactionNetwork(reactions)
+result = network.simulate(
+    initial_conditions={"A": 1.0, "B": 1.0, "C": 0.0},
+    time_span=(0, 100),
+    num_points=1000
+)
+
+# Visualize results
+result.plot()
+```
+
+### Command Line Interface
+
+```bash
+# Parse and validate reactions
+kinetics parse "A + B -> C ; 0.1"
+
+# Run simulation
+kinetics simulate --input reactions.yaml --output results.csv
+
+# Launch interactive dashboard
+kinetics visualize results.csv
+```
+
+## Reaction Input Format
+
+Reactions can be specified in multiple formats:
+
+### Simple text format
+```
+A + B -> C ; 0.1
+C -> A + B ; 0.05
+2A -> A2 ; 0.2
+```
+
+### YAML format
+```yaml
+species:
+  - A
+  - B
+  - C
+
+reactions:
+  - equation: A + B -> C
+    rate_constant: 0.1
+  - equation: C -> A + B
+    rate_constant: 0.05
+    kinetic_law: mass_action
+```
+
+### JSON format
+```json
+{
+  "reactions": [
+    {"reactants": ["A", "B"], "products": ["C"], "k": 0.1},
+    {"reactants": ["C"], "products": ["A", "B"], "k": 0.05}
+  ]
+}
+```
+
+## Architecture
+
+The framework is organized around three main abstractions:
+
+1. **ReactionNetwork**: Parsing and symbolic model construction
+2. **KineticSystem**: Numerical backend and ODE integration
+3. **Visualizer**: Interactive exploration and plotting
+
+### Core Components
+
+- **Parser**: Tokenizes reaction strings into structured data
+- **Stoichiometry**: Builds stoichiometric matrices from reactions
+- **Kinetics**: Generates symbolic rate equations (v = k∏[S_i]^ν_i)
+- **Integrator**: Solves ODE systems with adaptive stepping
+- **Validator**: Checks mass balance, rate constant units, etc.
+
+## Examples
+
+See the `examples/` directory for:
+- Simple mass action kinetics
+- Enzyme kinetics (Michaelis-Menten)
+- Oscillating reactions (Brusselator, Lotka-Volterra)
+- Parameter sweep demonstrations
+- Jupyter notebook tutorials
+
+## Documentation
+
+Full documentation is available in the `docs/` directory:
+- [Architecture Overview](docs/architecture.md)
+- [Usage Guide](docs/usage.md)
+- [Parser Specification](docs/parser_spec.md)
+- [Solver Algorithms](docs/solver_algorithms.md)
+- [Visualization Guide](docs/visualization_guide.md)
+
+## Advanced Features
+
+### Custom Kinetic Laws
+
+```python
+from kinetics_playground.core.kinetics import CustomKineticLaw
+
+# Define Michaelis-Menten kinetics
+mm_law = CustomKineticLaw(
+    name="michaelis_menten",
+    formula="Vmax * [S] / (Km + [S])",
+    parameters={"Vmax": 1.0, "Km": 0.5}
+)
+
+network.set_kinetic_law("E + S -> ES", mm_law)
+```
+
+### Parameter Sweeps
+
+```python
+# Sweep rate constant
+results = network.parameter_sweep(
+    parameter="k1",
+    values=np.logspace(-3, 1, 20),
+    initial_conditions={"A": 1.0, "B": 1.0}
+)
+
+results.plot_heatmap()
+```
+
+### Steady-State Analysis
+
+```python
+# Find equilibrium points
+steady_states = network.find_steady_states()
+stability = network.analyze_stability(steady_states)
+```
+
+## Performance
+
+For large reaction networks, enable performance optimizations:
+
+```python
+# Use Numba for JIT compilation
+network.set_backend("numba")
+
+# Or use Cython-compiled integrator
+network.set_backend("cython")
+```
+
+## Contributing
+
+Contributions are welcome! Please see the development guide in `docs/`.
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Citation
+
+If you use this software in your research, please cite:
+
+```
+@software{reaction_kinetics_playground,
+  title={Reaction Kinetics Playground},
+  author={Murari},
+  year={2025},
+  url={https://github.com/murari/reaction-kinetics-playground}
+}
+```
+
+## Acknowledgments
+
+Built with SymPy, SciPy, NumPy, and Matplotlib. Inspired by COPASI, Tellurium, and PySB.

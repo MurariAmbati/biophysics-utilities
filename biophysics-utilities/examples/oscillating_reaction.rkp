@@ -1,0 +1,10 @@
+# Oscillating Reaction Network (Brusselator)
+# Classic example of chemical oscillations
+
+# Reactions
+A -> X ; 1.0
+B + X -> Y + D ; 1.0
+2X + Y -> 3X ; 1.0
+X -> E ; 1.0
+
+# A and B are held constant
