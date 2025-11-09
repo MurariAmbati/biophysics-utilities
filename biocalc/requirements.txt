@@ -1,0 +1,9 @@
+# biocalc dependencies
+
+# Core dependencies
+pint>=0.20.0
+sympy>=1.12
+pytest>=7.0.0
+
+# Optional dependencies for enhanced features
+rich>=13.0.0

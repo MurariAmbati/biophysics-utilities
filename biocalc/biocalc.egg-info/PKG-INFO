@@ -1,0 +1,83 @@
+Metadata-Version: 2.1
+Name: biocalc
+Version: 0.1.0
+Summary: Unit-Aware Biochemical Calculator
+Author: Murari Ambati
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Chemistry
+Classifier: Topic :: Scientific/Engineering :: Physics
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: License :: OSI Approved :: MIT License
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pint>=0.20.0
+Requires-Dist: sympy>=1.12
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
+Provides-Extra: rich
+Requires-Dist: rich>=13.0.0; extra == "rich"
+
+# biocalc
+
+unit-aware biochemical calculator.
+
+## install
+
+```bash
+cd biocalc
+pip install -e .
+```
+
+## use
+
+### interactive repl
+
+```bash
+bio-calc
+>>> R * 300*K
+>>> avogadro * 1e-3 mol
+>>> convert(1 kcal/mol, J/mol)
+>>> energy(ATP_hydrolysis)
+```
+
+### command line
+
+```bash
+# evaluate expression
+bio-calc "R * 300*K"
+
+# list constants
+bio-calc --list
+
+# search constants
+bio-calc --search diffusion
+
+# convert units
+bio-calc --convert "1 kcal/mol" "J/mol"
+
+# get energy value
+bio-calc --energy ATP_hydrolysis
+```
+
+## features
+
+- automatic unit tracking with pint
+- symbolic math with sympy
+- 50+ biochemical and physical constants
+- safe expression evaluation
+- unit conversion and validation
+
+## constants
+
+biochemical energies, diffusion coefficients, molecular masses, standard conditions, and more.
+
+type `bio-calc --list` to see all available constants.
+
+---
+
+*murari ambati, 2025*
