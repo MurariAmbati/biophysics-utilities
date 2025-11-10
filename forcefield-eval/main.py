@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""
+Main entry point for Force Field Evaluator.
+
+This script can be run directly without installation:
+    python main.py --potential LJ,Morse --output plot
+"""
+
+import sys
+from pathlib import Path
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent))
+
+from src.cli import main
+
+if __name__ == '__main__':
+    main()

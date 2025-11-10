@@ -1,0 +1,72 @@
+# Example: Coulomb Potential for Ionic Interactions
+
+## Modeling NaCl Ion Pair
+
+Evaluate the electrostatic interaction between Na⁺ and Cl⁻ ions:
+
+```bash
+# Elementary charge: e = 1.602176634×10⁻¹⁹ C
+forcefield-eval --potential Coulomb \
+    --q1 1.602176634e-19 \
+    --q2 -1.602176634e-19 \
+    --rmin 0.1 --rmax 2.0 \
+    --npoints 150 \
+    --output plot \
+    --save nacl_coulomb.png
+```
+
+## Combined Potential: Coulomb + Lennard-Jones
+
+For a more realistic ionic interaction including repulsion:
+
+```python
+import numpy as np
+from src.potentials import combined_potential
+from src.evaluator import create_distance_range
+import matplotlib.pyplot as plt
+
+# Distance range
+r = create_distance_range(0.15, 1.5, 200)
+
+# Elementary charge
+e = 1.602176634e-19
+
+# Parameters
+lj_params = {'epsilon': 0.05, 'sigma': 0.28}  # Weak van der Waals
+coulomb_params = {'q1': e, 'q2': -e}           # Opposite charges
+
+# Calculate combined potential
+U_combined = combined_potential(
+    r,
+    lj_params=lj_params,
+    coulomb_params=coulomb_params
+)
+
+# Calculate individual contributions
+U_lj = combined_potential(r, lj_params=lj_params)
+U_coulomb = combined_potential(r, coulomb_params=coulomb_params)
+
+# Plot
+plt.figure(figsize=(10, 6))
+plt.plot(r, U_combined, 'k-', linewidth=2, label='Total (LJ + Coulomb)')
+plt.plot(r, U_lj, 'b--', linewidth=1.5, label='LJ (repulsion)', alpha=0.7)
+plt.plot(r, U_coulomb, 'r--', linewidth=1.5, label='Coulomb (attraction)', alpha=0.7)
+plt.axhline(y=0, color='gray', linestyle=':', linewidth=1)
+plt.xlabel('Distance r [nm]', fontsize=12)
+plt.ylabel('Potential Energy [eV]', fontsize=12)
+plt.title('NaCl Ion Pair: Combined Potential', fontsize=14, fontweight='bold')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.ylim(-5, 2)
+plt.tight_layout()
+plt.savefig('nacl_combined.png', dpi=300)
+print("Saved: nacl_combined.png")
+```
+
+## Physical Insight
+
+For NaCl at equilibrium (~0.28 nm):
+- Coulomb attraction dominates at long range (∝ 1/r)
+- LJ repulsion prevents collapse at short range
+- Balance gives stable ionic bond
+- Binding energy ~4-5 eV (experimental)

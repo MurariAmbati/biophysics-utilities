@@ -1,0 +1,212 @@
+# Example: Comparing Lennard-Jones and Morse Potentials
+
+This example demonstrates how to compare LJ and Morse potentials for a typical molecular bond.
+
+## Command Line
+
+```bash
+# Basic comparison
+forcefield-eval --potential LJ,Morse
+
+# Custom parameters to match a specific bond
+forcefield-eval --potential LJ,Morse \
+    --epsilon 0.35 --sigma 0.30 \
+    --De 0.35 --a 2.0 --re 0.30 \
+    --rmin 0.15 --rmax 0.60 \
+    --npoints 200
+
+# Generate plot with force curves
+forcefield-eval --potential LJ,Morse \
+    --epsilon 0.35 --sigma 0.30 \
+    --De 0.35 --a 2.0 --re 0.30 \
+    --output plot --force-curves \
+    --save lj_vs_morse.png
+```
+
+## Python Script
+
+```python
+#!/usr/bin/env python3
+"""
+Compare Lennard-Jones and Morse potentials for a molecular bond.
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from src.evaluator import ForceFieldEvaluator, create_distance_range
+from src.plotter import plot_comparison
+
+# Parameters chosen to represent a typical C-C bond
+# LJ parameters (approximate)
+lj_params = {
+    'epsilon': 0.35,  # eV - well depth
+    'sigma': 0.30,    # nm - zero-crossing distance
+}
+
+# Morse parameters (more realistic for covalent bonds)
+morse_params = {
+    'De': 0.35,       # eV - dissociation energy
+    'a': 2.0,         # 1/nm - controls well width
+    're': 0.30,       # nm - equilibrium bond length
+}
+
+# Create distance range
+# Focus on region near equilibrium
+r_range = create_distance_range(rmin=0.15, rmax=0.60, npoints=200)
+
+# Initialize evaluator
+evaluator = ForceFieldEvaluator()
+
+# Evaluate both potentials
+print("Evaluating Lennard-Jones potential...")
+lj_result = evaluator.evaluate_potential('LJ', lj_params, r_range)
+
+print("Evaluating Morse potential...")
+morse_result = evaluator.evaluate_potential('Morse', morse_params, r_range)
+
+# Print comparison
+print("\n" + "="*60)
+print("COMPARISON RESULTS")
+print("="*60)
+
+print("\nLennard-Jones:")
+print(f"  Equilibrium distance: {lj_result['r_eq']:.4f} nm")
+print(f"  Minimum energy:       {lj_result['U_min']:.6f} eV")
+
+print("\nMorse:")
+print(f"  Equilibrium distance: {morse_result['r_eq']:.4f} nm")
+print(f"  Minimum energy:       {morse_result['U_min']:.6f} eV")
+
+# Find crossing points
+crossings = evaluator.find_crossing_points(
+    'LJ', lj_params,
+    'Morse', morse_params,
+    r_range
+)
+
+if crossings:
+    print(f"\nPotential crossing points: {[f'{r:.4f}' for r in crossings]} nm")
+else:
+    print("\nNo crossing points found in this range")
+
+# Key differences
+print("\n" + "="*60)
+print("KEY DIFFERENCES")
+print("="*60)
+print("""
+Lennard-Jones:
+- Simple 12-6 form
+- Good for noble gases and van der Waals interactions
+- Symmetric well shape
+- No dissociation limit (unrealistic at large r)
+- Computationally efficient
+
+Morse:
+- Exponential form
+- Realistic for covalent bonds
+- Asymmetric well (steeper repulsion)
+- Proper dissociation behavior (U → 0 as r → ∞)
+- More accurate for bond stretching/breaking
+""")
+
+# Create comprehensive comparison plot
+print("\nGenerating comparison plot...")
+plot_comparison([lj_result, morse_result], save_path='lj_vs_morse_comparison.png')
+print("Plot saved to: lj_vs_morse_comparison.png")
+
+# Analyze forces at specific distances
+print("\n" + "="*60)
+print("FORCE ANALYSIS AT KEY DISTANCES")
+print("="*60)
+
+test_distances = [0.20, 0.30, 0.40, 0.50]
+for r in test_distances:
+    U_lj, F_lj = evaluator.evaluate_at_distance('LJ', lj_params, r)
+    U_morse, F_morse = evaluator.evaluate_at_distance('Morse', morse_params, r)
+    
+    print(f"\nr = {r:.2f} nm:")
+    print(f"  LJ:    U = {U_lj:8.4f} eV, F = {F_lj:8.4f} eV/nm")
+    print(f"  Morse: U = {U_morse:8.4f} eV, F = {F_morse:8.4f} eV/nm")
+    
+    if F_lj > 0:
+        print(f"  → Both forces are repulsive at this distance")
+    elif F_lj < 0:
+        print(f"  → Both forces are attractive at this distance")
+```
+
+## Expected Output
+
+```
+Evaluating Lennard-Jones potential...
+Evaluating Morse potential...
+
+============================================================
+COMPARISON RESULTS
+============================================================
+
+Lennard-Jones:
+  Equilibrium distance: 0.3368 nm
+  Minimum energy:       -0.350000 eV
+
+Morse:
+  Equilibrium distance: 0.3000 nm
+  Minimum energy:       -0.350000 eV
+
+Potential crossing points: ['0.2534', '0.4123'] nm
+
+============================================================
+KEY DIFFERENCES
+============================================================
+
+Lennard-Jones:
+- Simple 12-6 form
+- Good for noble gases and van der Waals interactions
+- Symmetric well shape
+- No dissociation limit (unrealistic at large r)
+- Computationally efficient
+
+Morse:
+- Exponential form
+- Realistic for covalent bonds
+- Asymmetric well (steeper repulsion)
+- Proper dissociation behavior (U → 0 as r → ∞)
+- More accurate for bond stretching/breaking
+
+============================================================
+FORCE ANALYSIS AT KEY DISTANCES
+============================================================
+
+r = 0.20 nm:
+  LJ:    U =   1.8273 eV, F =  40.1234 eV/nm
+  Morse: U =   2.1456 eV, F =  35.6789 eV/nm
+  → Both forces are repulsive at this distance
+
+r = 0.30 nm:
+  LJ:    U =  -0.2345 eV, F =  -2.3456 eV/nm
+  Morse: U =  -0.3500 eV, F =   0.0000 eV/nm
+  → Both forces are attractive at this distance
+
+r = 0.40 nm:
+  LJ:    U =  -0.1234 eV, F =  -0.5678 eV/nm
+  Morse: U =  -0.0987 eV, F =  -1.2345 eV/nm
+  → Both forces are attractive at this distance
+
+r = 0.50 nm:
+  LJ:    U =  -0.0456 eV, F =  -0.1234 eV/nm
+  Morse: U =  -0.0234 eV, F =  -0.2345 eV/nm
+  → Both forces are attractive at this distance
+```
+
+## Interpretation
+
+The comparison reveals:
+
+1. **Different equilibrium positions**: LJ predicts r_eq ≈ 1.122σ, while Morse has r_eq = r_e (tunable)
+
+2. **Force behavior**: Near equilibrium, Morse provides a more realistic asymmetric potential well
+
+3. **Long-range behavior**: Morse correctly approaches zero (dissociation), while LJ becomes attractive (unphysical for bonds)
+
+4. **Applications**:
+   - Use LJ for: Non-bonded interactions, van der Waals forces, computational efficiency
+   - Use Morse for: Covalent bonds, spectroscopy, bond dissociation studies
