@@ -1,0 +1,230 @@
+# Protein Surface Area Example Calculations
+
+This file demonstrates several example calculations using the Protein Hydration Shell Estimator.
+
+## Example 1: Typical Globular Protein (e.g., Lysozyme)
+
+### Parameters
+- Molecular weight: ~14 kDa
+- Surface area: ~100 nm² = 1.0e-16 m²
+- Hydrophilicity index: 0.6 (moderate mix of polar/nonpolar)
+- Shell thickness: 3.0 Å (typical first shell)
+
+### Calculation
+```
+surface_area = 1.0e-16
+hydrophilicity = 0.6
+thickness = 3.0
+
+f_hydrophilic = 0.8 + 0.4 × 0.6 = 1.04
+ρ_shell = 3.34e28 × 1.04 = 3.47e28 molecules/m³
+V_shell = 1.0e-16 × 3.0e-10 = 3.0e-26 m³
+N_H2O = 3.47e28 × 3.0e-26 = 1,041 molecules
+```
+
+### Expected Result
+≈ 1,041 water molecules in hydration shell
+
+---
+
+## Example 2: Small Hydrophobic Peptide
+
+### Parameters
+- Size: Small peptide, ~20 residues
+- Surface area: ~50 nm² = 5.0e-17 m²
+- Hydrophilicity index: 0.3 (predominantly hydrophobic)
+- Shell thickness: 2.8 Å (slightly thinner due to weaker interactions)
+
+### Calculation
+```
+surface_area = 5.0e-17
+hydrophilicity = 0.3
+thickness = 2.8
+
+f_hydrophilic = 0.8 + 0.4 × 0.3 = 0.92
+ρ_shell = 3.34e28 × 0.92 = 3.07e28 molecules/m³
+V_shell = 5.0e-17 × 2.8e-10 = 1.4e-26 m³
+N_H2O = 3.07e28 × 1.4e-26 = 430 molecules
+```
+
+### Expected Result
+≈ 430 water molecules in hydration shell
+
+---
+
+## Example 3: Large Hydrophilic Protein (e.g., BSA)
+
+### Parameters
+- Molecular weight: ~66 kDa (Bovine Serum Albumin)
+- Surface area: ~300 nm² = 3.0e-16 m²
+- Hydrophilicity index: 0.75 (many charged and polar residues)
+- Shell thickness: 3.5 Å (enhanced hydration)
+
+### Calculation
+```
+surface_area = 3.0e-16
+hydrophilicity = 0.75
+thickness = 3.5
+
+f_hydrophilic = 0.8 + 0.4 × 0.75 = 1.10
+ρ_shell = 3.34e28 × 1.10 = 3.67e28 molecules/m³
+V_shell = 3.0e-16 × 3.5e-10 = 1.05e-25 m³
+N_H2O = 3.67e28 × 1.05e-25 = 3,854 molecules
+```
+
+### Expected Result
+≈ 3,854 water molecules in hydration shell
+
+---
+
+## Example 4: Membrane Protein (Hydrophobic Region)
+
+### Parameters
+- Transmembrane domain surface area: ~80 nm² = 8.0e-17 m²
+- Hydrophilicity index: 0.15 (highly hydrophobic)
+- Shell thickness: 2.5 Å (minimal hydration in membrane-like environment)
+
+### Calculation
+```
+surface_area = 8.0e-17
+hydrophilicity = 0.15
+thickness = 2.5
+
+f_hydrophilic = 0.8 + 0.4 × 0.15 = 0.86
+ρ_shell = 3.34e28 × 0.86 = 2.87e28 molecules/m³
+V_shell = 8.0e-17 × 2.5e-10 = 2.0e-26 m³
+N_H2O = 2.87e28 × 2.0e-26 = 574 molecules
+```
+
+### Expected Result
+≈ 574 water molecules in hydration shell
+
+---
+
+## Example 5: DNA-Binding Protein (Highly Charged)
+
+### Parameters
+- Surface area: ~120 nm² = 1.2e-16 m²
+- Hydrophilicity index: 0.85 (many positively charged residues)
+- Shell thickness: 3.2 Å
+
+### Calculation
+```
+surface_area = 1.2e-16
+hydrophilicity = 0.85
+thickness = 3.2
+
+f_hydrophilic = 0.8 + 0.4 × 0.85 = 1.14
+ρ_shell = 3.34e28 × 1.14 = 3.81e28 molecules/m³
+V_shell = 1.2e-16 × 3.2e-10 = 3.84e-26 m³
+N_H2O = 3.81e28 × 3.84e-26 = 1,463 molecules
+```
+
+### Expected Result
+≈ 1,463 water molecules in hydration shell
+
+---
+
+## Example 6: Comparing Different Shell Thicknesses
+
+### Fixed Parameters
+- Surface area: 1.5e-17 m² (150 nm²)
+- Hydrophilicity: 0.65
+
+### Variable Thickness
+
+| Thickness (Å) | V_shell (m³) | N_H2O |
+|--------------|--------------|--------|
+| 2.5 | 3.75e-27 | 133 |
+| 3.0 | 4.50e-27 | 159 |
+| 3.5 | 5.25e-27 | 186 |
+| 4.0 | 6.00e-27 | 212 |
+
+**Observation:** Linear relationship between thickness and water count (at constant surface area).
+
+---
+
+## Example 7: Comparing Different Hydrophilicity
+
+### Fixed Parameters
+- Surface area: 1.5e-17 m² (150 nm²)
+- Thickness: 3.0 Å
+
+### Variable Hydrophilicity
+
+| H_index | f_hydrophilic | ρ_shell (molecules/m³) | N_H2O |
+|---------|---------------|------------------------|--------|
+| 0.0 | 0.80 | 2.67e28 | 120 |
+| 0.25 | 0.90 | 3.01e28 | 135 |
+| 0.50 | 1.00 | 3.34e28 | 150 |
+| 0.75 | 1.10 | 3.67e28 | 165 |
+| 1.0 | 1.20 | 4.01e28 | 180 |
+
+**Observation:** Water count increases by ~50% from fully hydrophobic to fully hydrophilic.
+
+---
+
+## How to Use These Examples
+
+### In Interactive Mode:
+
+```bash
+$ hydration-estimator
+>>> surface_area = 1.0e-16
+>>> hydrophilicity = 0.6
+>>> thickness = 3.0
+>>> compute()
+```
+
+### From Command Line:
+
+```bash
+$ hydration-estimator --surface-area 1.0e-16 --hydrophilicity 0.6 --thickness 3.0
+```
+
+### In Python Script:
+
+```python
+from src.model import HydrationShellEstimator
+
+estimator = HydrationShellEstimator(
+    surface_area=1.0e-16,
+    hydrophilicity_index=0.6,
+    shell_thickness=3.0
+)
+
+results = estimator.compute()
+print(f"Water molecules: {results['N_H2O']:.0f}")
+```
+
+---
+
+## Notes on Surface Area Estimation
+
+If you don't have experimental surface area data, you can estimate from:
+
+1. **Molecular Weight (MW)**:
+   - Small proteins (<20 kDa): ~6-8 nm²/kDa
+   - Medium proteins (20-60 kDa): ~5-7 nm²/kDa
+   - Large proteins (>60 kDa): ~4-6 nm²/kDa
+
+   Example: 50 kDa protein → ~300 nm² → 3.0e-16 m²
+
+2. **Number of Residues (N)**:
+   - ASA ≈ (110-120) × N Ų (square Angstroms)
+   - Convert: 1 Ų = 1e-20 m²
+
+   Example: 150 residues → 16,500 Ų → 1.65e-16 m²
+
+3. **PDB Structure**: Use computational tools like FreeSASA, DSSP, or NACCESS
+
+---
+
+## Validation Against Literature
+
+Typical experimental hydration numbers (first shell):
+- Small proteins (~100 residues): 500-1,500 waters
+- Medium proteins (~300 residues): 2,000-4,000 waters
+- Large proteins (>500 residues): 4,000-8,000 waters
+
+These estimates align well with the model's predictions for typical parameter ranges.
