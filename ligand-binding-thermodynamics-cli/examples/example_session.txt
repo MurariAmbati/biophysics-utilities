@@ -1,0 +1,90 @@
+$ bind-thermo
+============================================================
+  Ligand Binding Thermodynamics CLI
+  Version 1.0.0
+============================================================
+
+Commands:
+  T = <value>         Set temperature (K)
+  P = <value>         Set protein concentration (M)
+  L = <value>         Set ligand concentration (M)
+  PL = <value>        Set complex concentration (M)
+  ΔH = <value>        Set enthalpy (kJ/mol)
+  compute()           Calculate Ka, Kd, ΔG
+  compute_entropy()   Calculate ΔS (requires ΔH)
+  show()              Show current state
+  clear()             Clear all variables
+  help()              Show this help
+  quit()              Exit
+
+Example:
+  >>> T = 298
+  >>> P = 1e-6
+  >>> L = 1e-6
+  >>> PL = 5e-7
+  >>> compute()
+
+>>> T = 298
+T = 2.98e+02
+>>> P = 1e-6
+P = 1.00e-06
+>>> L = 1e-6
+L = 1.00e-06
+>>> PL = 5e-7
+PL = 5.00e-07
+>>> compute()
+
+==================================================
+  RESULTS
+==================================================
+
+Equations:
+  Ka = [PL] / ([P][L])
+     = 5.00e-07 / (1.00e-06 × 1.00e-06)
+
+  Ka = 5.00e+05 M^-1
+
+  Kd = 1 / Ka
+     = 2.00e-06 M
+
+  ΔG = -RT ln(Ka)
+     = -(8.314462 J/(mol·K)) × 298 K × ln(5.00e+05)
+     = -32.18 kJ/mol
+==================================================
+
+>>> ΔH = -50
+ΔH = -5.00e+01
+>>> compute_entropy()
+
+==================================================
+  ENTROPY CALCULATION
+==================================================
+
+  ΔG = ΔH - TΔS
+  ΔS = (ΔH - ΔG) / T
+
+  Given:
+    ΔH = -50 kJ/mol
+    ΔG = -32.18 kJ/mol
+    T  = 298 K
+
+  ΔS = -59.8 J/(mol·K)
+==================================================
+
+>>> show()
+
+Current state:
+----------------------------------------
+  L    = 1.000e-06
+  P    = 1.000e-06
+  PL   = 5.000e-07
+  T    = 2.980e+02
+  ΔH   = -5.000e+01
+  ΔS   = -5.983e+01
+----------------------------------------
+
+>>> clear()
+All variables cleared.
+
+>>> quit()
+Goodbye!
