@@ -1,0 +1,5 @@
+# Simple water-like dipole: O at origin, two H atoms.
+# x  y  z  q (e)
+0.000  0.000  0.000  -0.834
+0.9572  0.000  0.000   0.417
+-0.2399872  0.927297  0.000   0.417

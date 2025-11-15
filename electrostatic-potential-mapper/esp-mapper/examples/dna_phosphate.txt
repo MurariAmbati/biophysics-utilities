@@ -1,0 +1,7 @@
+# Minimal phosphate group fragment (illustrative only).
+# x  y  z  q (e)
+0.000  0.000  0.000  -1.0
+1.5    0.0    0.0    0.25
+-1.5   0.0    0.0    0.25
+0.0    1.5    0.0    0.25
+0.0   -1.5    0.0    0.25
