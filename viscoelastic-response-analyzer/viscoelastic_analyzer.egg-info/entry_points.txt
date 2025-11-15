@@ -1,0 +1,2 @@
+[console_scripts]
+viscoelastic-analyzer = viscoelastic_analyzer.cli:main

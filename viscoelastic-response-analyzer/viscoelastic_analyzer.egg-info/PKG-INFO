@@ -1,0 +1,82 @@
+Metadata-Version: 2.4
+Name: viscoelastic-analyzer
+Version: 0.1.0
+Summary: CLI utilities for computing viscoelastic relaxation and creep responses for Maxwell and Kelvin–Voigt models
+Author: Murari
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26
+Requires-Dist: matplotlib>=3.8
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4; extra == "dev"
+
+# Viscoelastic Response Analyzer
+
+Compute analytical stress/strain responses for simple viscoelastic materials using the Maxwell and Kelvin–Voigt models. The tool provides both a Python API and a CLI that exports numerical arrays, JSON/CSV files, and optional plots.
+
+## Features
+- Maxwell relaxation and creep, Kelvin–Voigt creep.
+- Input validation for material parameters and experiment configuration.
+- JSON/CSV export and matplotlib plotting (on demand).
+- CLI plus Python import for embedding in notebooks or scripts.
+- Pytest suite with equation validation and CLI smoke test.
+
+## Installation
+```bash
+/Users/murari/biophysics-utilities/viscoelastic-response-analyzer/.conda/bin/python -m pip install -e '.[dev]'
+```
+
+## CLI Usage
+```bash
+viscoelastic-analyzer \
+  --model maxwell \
+  --mode relaxation \
+  --E 1000 \
+  --eta 5000 \
+  --strain0 0.02 \
+  --t_max 10 \
+  --dt 0.01 \
+  --plot-file plots/maxwell_relaxation.png \
+  --json-out outputs/relaxation.json
+```
+
+Flags of interest:
+- `--stress0` when `--mode creep`.
+- `--plot` for an interactive window, `--plot-file path` to save an image.
+- `--csv-out path` and/or `--json-out path` for data exports.
+- `--quiet` to silence the console summary.
+
+## Python API
+```python
+from viscoelastic_analyzer import SimulationConfig, compute_response
+
+cfg = SimulationConfig(
+    model="maxwell",
+    mode="relaxation",
+    E=1200.0,
+    eta=6000.0,
+    strain0=0.01,
+    stress0=None,
+    t_max=8.0,
+    dt=0.05,
+)
+result = compute_response(cfg)
+print(result.tau, result.response[:5])
+```
+
+## Outputs
+- `time`: monotonically increasing numpy array from 0 to `t_max`.
+- `response`: stress (relaxation) or strain (creep).
+- `tau = eta / E` printed and included in JSON payloads.
+- Optional PNG/SVG exports via `--plot-file`.
+
+## Testing
+```bash
+/Users/murari/biophysics-utilities/viscoelastic-response-analyzer/.conda/bin/python -m pytest
+```
+
+## Next Steps
+- Extend to generalized Maxwell/Kelvin models (multiple elements).
+- Add dimensional analysis/helpers for unit conversions.
+- Support batch experiments defined in a YAML/JSON manifest.
